@@ -7,13 +7,10 @@ class wechatCallbackapiTest
 {
     public function responseMsg()
     {
-		//get post data, May be due to the different environments
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
 
-      	//extract post data
-		if (!empty($postStr)){
-                /* libxml_disable_entity_loader is to prevent XML eXternal Entity Injection,
-                   the best way is to check the validity of xml by yourself */
+		if (!empty($postStr))
+		{
                 libxml_disable_entity_loader(true);
               	$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
                 $fromUsername = $postObj->FromUserName;
@@ -34,11 +31,14 @@ class wechatCallbackapiTest
                 	$contentStr = "Welcome to wechat world!";
                 	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
                 	echo $resultStr;
-                }else{
+                }
+				else
+				{
                 	echo "Input something...";
                 }
-
-        }else {
+        }
+		else
+		{
         	echo "";
         	exit;
         }
