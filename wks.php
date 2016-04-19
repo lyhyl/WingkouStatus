@@ -25,10 +25,22 @@ class wechatCallbackapiTest
 							<Content><![CDATA[%s]]></Content>
 							<FuncFlag>0</FuncFlag>
 							</xml>";             
-				if(!empty( $keyword ))
+				if(!empty($keyword))
                 {
               		$msgType = "text";
-                	$contentStr = "Welcome to wechat world!";
+                	$contentStr = "";
+					if($keyword == "喵")
+					{
+						$contentStr = "汪";
+					}
+					else if($keyword == "汪")
+					{
+						$contentStr = "喵";
+					}
+					else
+					{
+						$contentStr = getSnap();
+					}
                 	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
                 	echo $resultStr;
                 }
@@ -43,6 +55,27 @@ class wechatCallbackapiTest
         	exit;
         }
     }
+	
+	function getSnap()
+	{
+		$server = "sqld.duapp.com:4050";
+		$user = "2bcb3e419d374573a1f30985225d9125";
+		$passw = "62dd83c50d4e4b7bb8e83adcc9df86d2";
+		$dbname = "IyropdxNjTcyGocxBRPJ";
+		$con = @mysql_connect($server,$user,$passw,true); 
+		if(!$con)
+		{
+			die("Connect Server Failed: " . mysql_error($con)); 
+		}
+		if(!mysql_select_db($dbname,$con))
+		{
+			die("Select Database Failed: " . mysql_error($con)); 
+		}
+		$sql = "SELECT MAX(`Time`), `Desc` FROM `WkPCSnap`";
+		$res = mysql_query($sql,$con);
+		
+		mysql_close($con);
+	}
 }
 
 ?>
