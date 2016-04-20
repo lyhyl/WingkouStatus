@@ -40,6 +40,8 @@ class wechatCallbackapiTest
 					else
 					{
 						$contentStr = getSnap();
+						if(empty($contentStr))
+							$contentStr = "Empty";
 					}
                 	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
                 	echo $resultStr;
