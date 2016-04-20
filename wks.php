@@ -70,6 +70,8 @@ class wechatCallbackapiTest
 		/*为了避免因MySQL数据库连接失败而导致程序异常中断，此处通过在mysql_connect()函数前添加@，来抑制错误信息，确保程序继续运行*/
 		/*有关mysql_connect()函数的详细介绍，可参看http://php.net/manual/zh/function.mysql-connect.php*/
 		$link = @mysql_connect("{$host}:{$port}",$user,$pwd,true);
+		
+		return "Snap";
 
 		if(!$link)
 		{
