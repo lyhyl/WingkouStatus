@@ -39,7 +39,7 @@ class wechatCallbackapiTest
 					}
 					else
 					{
-						$contentStr = getSnap();
+						$contentStr = $this->getSnap();
 						if(empty($contentStr))
 							$contentStr = "Empty";
 					}
