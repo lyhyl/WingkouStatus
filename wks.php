@@ -39,9 +39,9 @@ class WeChat
 					else
 					{
 						$simpleMap = array("喵"=>"汪","汪"=>"喵");
-						if(array_key_exists($contentStr,$simpleMap))
+						if(array_key_exists($keyword,$simpleMap))
 						{
-							$contentStr = $simpleMap[$contentStr];
+							$contentStr = $simpleMap[$keyword];
 						}
 						else
 						{
@@ -76,7 +76,7 @@ class WeChat
 			return ("SQL Failed(No Result): " . mysql_error($link));
 		}
 		$time = $row[0];
-		$summery = genSummery($row[1]);
+		$summery = $this->genSummery($row[1]);
 		return "最后记录于{$time}:\n{$summery}";
 	}
 	
