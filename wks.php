@@ -83,7 +83,7 @@ class WeChat
 	function genSummery($data)
 	{
 		$gstatus = array("boot"=>"刚开机呢……","shutdown"=>"啊……他关机了");
-		if(array_key_exists(),$gstatus))
+		if(array_key_exists($data,$gstatus))
 			return $gstatus[$data];
 		$id = array(
 			"cmd" => 1,
