@@ -80,19 +80,18 @@ class wechatCallbackapiTest
 			return ("Select Database Failed: " . mysql_error($link));
 		}
 		
-		//$sql = "SELECT * FROM `WkPCSnap` WHERE `Time` = (SELECT MAX(`Time`) FROM `WkPCSnap`)";
-		$sql = "SELECT * FROM `WkPCSnap` WHERE 1";
-		$res = mysql_query($sql,$link);
+		$sql = "SELECT * FROM `WkPCSnap` WHERE `Time` = (SELECT MAX(`Time`) FROM `WkPCSnap`)";
+		$ret = mysql_query($sql,$link);
 		if ($ret === false)
 		{
-			return ("SQL Failed: " . mysql_error($link));
+			return ("SQL Failed(Query): " . mysql_error($link));
 		}
-		$r = mysql_fetch_row($res);
-		if (count($r) == 0)
+		$row = mysql_fetch_row($ret);
+		if ($row === false)
 		{
-			return ("SQL Failed2: " . mysql_error($link));
+			return ("SQL Failed(No Result): " . mysql_error($link));
 		}
-		return $r[0];
+		return implode($row);
 	}
 }
 
