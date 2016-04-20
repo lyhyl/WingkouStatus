@@ -1,10 +1,10 @@
 <?php
 define("TOKEN", "wingkoulan");
 require "baesql.php";
-$wechatObj = new wechatCallbackapiTest();
+$wechatObj = new WeChat();
 $wechatObj->responseMsg();
 
-class wechatCallbackapiTest
+class WeChat
 {
     public function responseMsg()
     {
@@ -61,7 +61,7 @@ class wechatCallbackapiTest
 	
 	function getSnap()
 	{
-		$ret = queryBAESQL("SELECT * FROM `WkPCSnap` WHERE `Time` = (SELECT MAX(`Time`) FROM `WkPCSnap`)");
+		$ret = queryBAESQL("SELECT * FROM `{$tbname}` WHERE `Time` = (SELECT MAX(`Time`) FROM `{$tbname}`)");
 		if ($ret === false)
 		{
 			return ("SQL Failed(Query): " . mysql_error($link));
