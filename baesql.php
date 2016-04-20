@@ -13,7 +13,7 @@ function queryBAESQL($sql)
 	{
 		return ("Connect Server Failed: " . mysql_error());
 	}
-	if(!mysql_select_db($dbname,$link))
+	if(!mysql_select_db($GLOBALS['dbname'],$link))
 	{
 		return ("Select Database Failed: " . mysql_error($link));
 	}

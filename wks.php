@@ -61,9 +61,7 @@ class WeChat
 	
 	function getSnap()
 	{
-		$sql = "SELECT * FROM `{$GLOBALS['tbname']}` WHERE `Time` = (SELECT MAX(`Time`) FROM `{$GLOBALS['tbname']}`)";
-		return $sql;
-		$ret = queryBAESQL($sql);
+		$ret = queryBAESQL("SELECT * FROM `{$GLOBALS['tbname']}` WHERE `Time` = (SELECT MAX(`Time`) FROM `{$GLOBALS['tbname']}`)");
 		if ($ret === false)
 		{
 			return ("SQL Failed(Query): " . mysql_error($link));
