@@ -40,8 +40,8 @@ class wechatCallbackapiTest
 					else
 					{
 						$contentStr = $this->getSnap();
-						if(empty($contentStr))
-							$contentStr = "Empty";
+						if(empty($contentStr) or is_null($contentStr))
+							$contentStr = "……";
 					}
                 	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
                 	echo $resultStr;
@@ -65,8 +65,6 @@ class wechatCallbackapiTest
 		$port = 4050;
 		$user = '2bcb3e419d374573a1f30985225d9125';
 		$pwd = '62dd83c50d4e4b7bb8e83adcc9df86d2';
-		
-		return "Snap";
 
 		/*接着调用mysql_connect()连接服务器*/
 		/*为了避免因MySQL数据库连接失败而导致程序异常中断，此处通过在mysql_connect()函数前添加@，来抑制错误信息，确保程序继续运行*/
