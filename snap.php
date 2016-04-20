@@ -11,6 +11,7 @@ class SnapTaker
 		if (!empty($postStr))
 		{
 			queryBAESQL("INSERT INTO `{$GLOBALS['dbname']}`.`{$GLOBALS['tbname']}` (`Time` ,`Desc`)VALUES (NOW() ,  '{$postStr}');");
+			echo "succ";
 		}
 	}
 }
