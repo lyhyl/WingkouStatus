@@ -30,26 +30,30 @@ class WeChat
                 {
               		$msgType = "text";
                 	$contentStr = "";
-					if($keyword == "喵")
-					{
-						$contentStr = "汪";
-					}
-					else if($keyword == "汪")
-					{
-						$contentStr = "喵";
-					}
-					else
+					if($keyword == "你在干吗" or $keyword == "waud" or $keyword == "wayd")
 					{
 						$contentStr = $this->getSnap();
 						if(empty($contentStr) or is_null($contentStr))
-							$contentStr = "……";
+							$contentStr = "好像出了点问题……我不知道……";
+					}
+					else
+					{
+						$simpleMap = array("喵"=>"汪","汪"=>"喵");
+						if(array_key_exists($contentStr,$simpleMap))
+						{
+							$contentStr = $simpleMap[$contentStr];
+						}
+						else
+						{
+							$contentStr = "……help……";
+						}
 					}
                 	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
                 	echo $resultStr;
                 }
 				else
 				{
-                	echo "Input something...";
+                	echo "……";
                 }
         }
 		else
@@ -71,7 +75,60 @@ class WeChat
 		{
 			return ("SQL Failed(No Result): " . mysql_error($link));
 		}
-		return implode($row);
+		$time = $row[0];
+		$summery = genSummery($row[1]);
+		return "最后记录于{$time}:\n{$summery}";
+	}
+	
+	function genSummery($data)
+	{
+		$gstatus = array("boot"=>"刚开机呢……","shutdown"=>"啊……他关机了");
+		if(array_key_exists(),$gstatus))
+			return $gstatus[$data];
+		$id = array(
+			"cmd" => 1,
+			"notepad++" => 1,
+			"devenv" => 1,
+			"idea" => 1,
+			"pythonw" => 1,
+			"chrome" => 2,
+			"csgo" => 4,
+			"dontstarve_steam" => 4,
+			"hl2" => 4,
+			"wps" => 8,
+			"wpp" => 8,
+			"et" => 8,
+			"eviews6" => 8,
+			"vmplayer" => 16
+		);
+		$procs = explode(",",$data);
+		$status = 0;
+		$ps = "";
+		for($i = 0; $i < count($procs); $i++)
+		{
+			$proc = strtolower(trim($procs[$i]);
+			if(array_key_exists(),$id))
+			{
+				$status |= $id[$proc];
+				$ps = (empty($ps) ? "" : ",") . $proc;
+			}
+		}
+		$desc = "";
+		if(($status & 3)==3)
+			$desc = "他一定是在搞ACM了……";
+		else if(($status & 1)!=0)
+			$desc = "他在编程~";
+		else if(($status & 2)!=0)
+			$desc = "在看网页吧……";
+		else if(($status & 4)!=0)
+			$desc = "啊！他在打游戏！";
+		else if(($status & 8)!=0)
+			$desc = "在做作业啦";
+		else if(($status & 16)!=0)
+			$desc = "在用虚拟机……可能是在看股票~";
+		else
+			$desc = "哎？什么都没发现……";
+		return "{$desc}(发现了以下进程{$ps})";
 	}
 }
 
