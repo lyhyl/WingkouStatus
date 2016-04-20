@@ -30,7 +30,7 @@ class WeChat
                 {
               		$msgType = "text";
                 	$contentStr = "";
-					if($keyword == "你在干吗" or $keyword == "waud" or $keyword == "wayd")
+					if($keyword == "你在干嘛" or $keyword == "waud" or $keyword == "wayd")
 					{
 						$contentStr = $this->getSnap();
 						if(empty($contentStr) or is_null($contentStr))
@@ -126,7 +126,7 @@ class WeChat
 			$desc = "在用虚拟机……可能是在看股票~";
 		else
 			$desc = "哎？什么都没发现……";
-		return "{$desc}(发现了以下进程{$ps})";
+		return "{$desc}\n(发现了以下进程{$ps})";
 	}
 }
 
