@@ -106,8 +106,8 @@ class WeChat
 		$ps = "";
 		for($i = 0; $i < count($procs); $i++)
 		{
-			$proc = strtolower(trim($procs[$i]);
-			if(array_key_exists(),$id))
+			$proc = strtolower(trim($procs[$i]));
+			if(array_key_exists($proc,$id))
 			{
 				$status |= $id[$proc];
 				$ps = (empty($ps) ? "" : ",") . $proc;
