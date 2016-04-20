@@ -86,15 +86,15 @@ class WeChat
 		if(array_key_exists($data,$gstatus))
 			return $gstatus[$data];
 		$id = array(
-			"cmd" => 1,
-			"notepad++" => 1,
-			"devenv" => 1,
-			"idea" => 1,
-			"pythonw" => 1,
+			"csgo" => 1,
+			"dontstarve_steam" => 1,
+			"hl2" => 1,
 			"chrome" => 2,
-			"csgo" => 4,
-			"dontstarve_steam" => 4,
-			"hl2" => 4,
+			"cmd" => 4,
+			"notepad++" => 4,
+			"devenv" => 4,
+			"idea" => 4,
+			"pythonw" => 4,
 			"wps" => 8,
 			"wpp" => 8,
 			"et" => 8,
@@ -110,18 +110,16 @@ class WeChat
 			if(array_key_exists($proc,$id))
 			{
 				$status |= $id[$proc];
-				$ps = (empty($ps) ? "" : ",") . $proc;
+				$ps = $ps . (empty($ps) ? "" : ",") . $proc;
 			}
 		}
 		$desc = "";
-		if(($status & 3)==3)
-			$desc = "他一定是在搞ACM了……";
-		else if(($status & 1)!=0)
-			$desc = "他在编程~";
+		if(($status & 1)!=0)
+			$desc = "啊！他在打游戏！";
 		else if(($status & 2)!=0)
 			$desc = "在看网页吧……";
 		else if(($status & 4)!=0)
-			$desc = "啊！他在打游戏！";
+			$desc = "他在编程~";
 		else if(($status & 8)!=0)
 			$desc = "在做作业啦";
 		else if(($status & 16)!=0)
