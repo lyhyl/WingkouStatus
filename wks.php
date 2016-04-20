@@ -1,5 +1,6 @@
 <?php
 define("TOKEN", "wingkoulan");
+require "baesql.php";
 $wechatObj = new wechatCallbackapiTest();
 $wechatObj->responseMsg();
 
@@ -60,28 +61,7 @@ class wechatCallbackapiTest
 	
 	function getSnap()
 	{
-		$dbname = "IyropdxNjTcyGocxBRPJ";
-		$host = 'sqld.duapp.com';
-		$port = 4050;
-		$user = '2bcb3e419d374573a1f30985225d9125';
-		$pwd = '62dd83c50d4e4b7bb8e83adcc9df86d2';
-
-		/*接着调用mysql_connect()连接服务器*/
-		/*为了避免因MySQL数据库连接失败而导致程序异常中断，此处通过在mysql_connect()函数前添加@，来抑制错误信息，确保程序继续运行*/
-		/*有关mysql_connect()函数的详细介绍，可参看http://php.net/manual/zh/function.mysql-connect.php*/
-		$link = @mysql_connect("{$host}:{$port}",$user,$pwd,true);
-
-		if(!$link)
-		{
-			return ("Connect Server Failed: " . mysql_error());
-		}
-		if(!mysql_select_db($dbname,$link))
-		{
-			return ("Select Database Failed: " . mysql_error($link));
-		}
-		
-		$sql = "SELECT * FROM `WkPCSnap` WHERE `Time` = (SELECT MAX(`Time`) FROM `WkPCSnap`)";
-		$ret = mysql_query($sql,$link);
+		$ret = queryBAESQL("SELECT * FROM `WkPCSnap` WHERE `Time` = (SELECT MAX(`Time`) FROM `WkPCSnap`)");
 		if ($ret === false)
 		{
 			return ("SQL Failed(Query): " . mysql_error($link));
