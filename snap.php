@@ -15,7 +15,7 @@ class SnapTaker
 		}
 		else
 		{
-			echo "err";
+			echo $postStr;
 		}
 	}
 }
