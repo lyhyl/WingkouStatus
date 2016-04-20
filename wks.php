@@ -58,23 +58,38 @@ class wechatCallbackapiTest
 	
 	function getSnap()
 	{
-		$server = "sqld.duapp.com:4050";
-		$user = "2bcb3e419d374573a1f30985225d9125";
-		$passw = "62dd83c50d4e4b7bb8e83adcc9df86d2";
 		$dbname = "IyropdxNjTcyGocxBRPJ";
-		$con = @mysql_connect($server,$user,$passw,true); 
-		if(!$con)
+		$host = 'sqld.duapp.com';
+		$port = 4050;
+		$user = '2bcb3e419d374573a1f30985225d9125';
+		$pwd = '62dd83c50d4e4b7bb8e83adcc9df86d2';
+
+		/*接着调用mysql_connect()连接服务器*/
+		/*为了避免因MySQL数据库连接失败而导致程序异常中断，此处通过在mysql_connect()函数前添加@，来抑制错误信息，确保程序继续运行*/
+		/*有关mysql_connect()函数的详细介绍，可参看http://php.net/manual/zh/function.mysql-connect.php*/
+		$link = @mysql_connect("{$host}:{$port}",$user,$pwd,true);
+
+		if(!$link)
 		{
-			die("Connect Server Failed: " . mysql_error($con)); 
+			return ("Connect Server Failed: " . mysql_error());
 		}
-		if(!mysql_select_db($dbname,$con))
+		if(!mysql_select_db($dbname,$link))
 		{
-			die("Select Database Failed: " . mysql_error($con)); 
+			return ("Select Database Failed: " . mysql_error($link));
 		}
+
 		$sql = "SELECT MAX(`Time`), `Desc` FROM `WkPCSnap`";
-		$res = mysql_query($sql,$con);
-		
-		mysql_close($con);
+		$res = mysql_query($sql,$link);
+		if ($ret === false)
+		{
+			return ("SQL Failed: " . mysql_error($link));
+		}
+		$r = mysql_fetch_row($res);
+		if (count($r) == 0)
+		{
+			return ("SQL Failed2: " . mysql_error($link));
+		}
+		return $r[0];
 	}
 }
 
