@@ -79,8 +79,8 @@ class wechatCallbackapiTest
 		{
 			return ("Select Database Failed: " . mysql_error($link));
 		}
-
-		$sql = "SELECT MAX(`Time`), `Desc` FROM `WkPCSnap`";
+		
+		$sql = "SELECT * FROM `WkPCSnap` WHERE `Time` = (SELECT MAX(`Time`) FROM `WkPCSnap`)";
 		$res = mysql_query($sql,$link);
 		if ($ret === false)
 		{
