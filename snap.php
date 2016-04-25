@@ -10,7 +10,10 @@ class SnapTaker
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
 		if (!empty($postStr))
 		{
-			queryBAESQL("INSERT INTO `{$GLOBALS['dbname']}`.`{$GLOBALS['tbname']}` (`Time`,`Desc`) VALUES (NOW(),'{$postStr}');");
+			$json=json_decode($postStr,true);
+			$tasks=$json["tasks"];
+			$atime=$json["atime"];
+			queryBAESQL("INSERT INTO `{$GLOBALS['dbname']}`.`{$GLOBALS['tbname']}` (`Time`,`Desc`,`ATime`) VALUES (NOW(),'{$tasks}','{$atime}');");
 			echo "succ";
 		}
 		else

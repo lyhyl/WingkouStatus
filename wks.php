@@ -77,7 +77,12 @@ class WeChat
 		}
 		$time = $row[0];
 		$summery = $this->genSummery($row[1]);
-		return "最后记录于{$time}:\n{$summery}";
+		$atime = $row[2];
+		$dt = floor((time() - $atime) / 60);
+		$atxt = "";
+		if($dt > 5)
+			$atxt = "\n(但是他的电脑已经有{$dt}分钟没有动过了……)";
+		return "最后记录于{$time}:\n{$summery}{$atxt}";
 	}
 	
 	function genSummery($data)
