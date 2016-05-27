@@ -1,7 +1,9 @@
 <?php
+
 $dbname = "IyropdxNjTcyGocxBRPJ";
-$tbname = "WkPCSnap";
-$aktbname = "WXAK";
+$akTbName = "WXAK";
+$snapTbName = "WkPCSnap";
+
 function queryBAESQL($sql)
 {
 	$host = 'sqld.duapp.com';
