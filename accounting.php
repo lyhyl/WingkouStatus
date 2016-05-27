@@ -1,14 +1,12 @@
 <?php
 require_once "baesql.php";
 
-$accountBegin = array("$","￥","＄");
-
 class Accountor
 {
 	private $tbname = "Accounting";
 	function account($usr,$in)
 	{
-		$in[0] = " ";
+		$in = str_replace(array("$","¥","￥","＄"),"",$in);
 		$data = preg_split('/[ \r\n]/',$in,-1,PREG_SPLIT_NO_EMPTY);
 		$datalen = count($data);
 		$cmdTemp = "INSERT INTO `%s` (`User`,`Time`,`Type`,`Money`) VALUES ('%s',NOW(),'%s',%s)";
@@ -23,7 +21,7 @@ class Accountor
 	function queryN($usr,$n)
 	{
 		$n = min(30,$n);
-		$cmd = "SELECT * FROM `{$this->tbname}` WHERE `User` = '{$usr}' LIMIT {$n}";
+		$cmd = "SELECT * FROM `{$this->tbname}` WHERE `User` = '{$usr}' ORDER BY `Time` DESC LIMIT {$n}";
 		$data = queryBAESQL($cmd);
 		$msg = "";
 		$i = 0;
@@ -36,7 +34,7 @@ class Accountor
 	}
 	function queryDay($usr,$n)
 	{
-		
+		return "未实现……";
 	}
 }
 ?>

@@ -52,7 +52,12 @@ class WeChat
 		
 		// help
 		if($in == "help")
-			return "help s help a ";
+			return "输入 help s 查看状态帮助\n输入 help a 查看记账帮助";
+		if($stripIn == "helps")
+			return "输入\"你在干嘛\"/\"你在干什么\"/\"你在做什么\"/\"waud\"/\"wayd\"/\"wrud\"/\"wryd\"可以查看状态";
+		if($stripIn == "helpa")
+			return "以\$(或¥,￥,＄)开头的消息将作为账目记录\n项目名与金额之间用空格隔开哦~\n例如:\n$\n纸巾 5\n笔 1.99\n\n" . 
+		"输入\"最后n条消费记录\"/\"今天消费记录\"/\"昨天消费记录\"/\"前天消费记录\"可以查询对应记录";
 		
 		// wingkou's status
 		$wrud = array("你在干嘛", "你在干什么", "你在做什么", "waud", "wayd", "wrud", "wryd");
@@ -65,7 +70,7 @@ class WeChat
 		}
 		
 		// accounting
-		if(in_array($in[0],$GLOBALS['accountBegin']))
+		if(preg_match("/^[\$¥￥＄]/",$in))
 		{
 			$acc = new Accountor();
 			return $acc->account($usr,$in) ? "已记录~ :D" : "哎？有点错误哎……";
@@ -86,12 +91,17 @@ class WeChat
 		$accSum = "/.+月消费总结/";
 		
 		// easter egg
-		$simpleMap = array("喵"=>"汪","汪"=>"喵");
-		if(array_key_exists($in,$simpleMap))
-			return $simpleMap[$in];
+		if(preg_match("/^(喵 *)+$/",$in) or preg_match("/^(汪 *)+$/",$in))
+		{
+			$f = array("汪","喵");
+			$t = array("喵","汪");
+			return str_replace($f,$t,$in);
+		}
+		else if(preg_match("/^([喵汪] *)+$/",$in))
+			return "你到底是汪还是喵啊……";
 		
 		// I do not understand
-		return "虽然我不造你说什么，但是我已经记录下来了。另外，输入help可以查看帮助。";
+		return "虽然我不造你说什么，但是我已经记录下来了。另外，输入help可以查看帮助。有建议可直接留言，反正我都不打算改代码……";
 	}
 }
 ?>
