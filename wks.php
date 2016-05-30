@@ -43,7 +43,6 @@ class WeChat
 	
 	function getResponseTxt($usr,$in)
 	{
-		$errMsg = "服务器好像出了点问题……告诉他吧！";
 		$stripIn = str_replace(" ","",$in);
 		
 		// empty?
@@ -60,35 +59,50 @@ class WeChat
 		"输入\"最后n条消费记录\"/\"今天消费记录\"/\"昨天消费记录\"/\"前天消费记录\"可以查询对应记录";
 		
 		// wingkou's status
-		$wrud = array("你在干嘛", "你在干什么", "你在做什么", "waud", "wayd", "wrud", "wryd");
-		if(in_array(strtolower($stripIn),$wrud))
-		{
-			$snap = getSnap();
-			if(is_null($snap) or empty($snap))
-				return $errMsg;
-			return $snap;
-		}
+		$sg = new snapGetter();
+		if($sg->isGetSnapMsg($stripIn))
+			return $sg->getSnap();
 		
 		// accounting
-		if(preg_match("/^[\$¥￥＄]/",$in))
-		{
-			$acc = new Accountor();
-			return $acc->account($usr,$in) ? "已记录~ :D" : "哎？有点错误哎……";
-		}
+		$acc = new Accountor();
+		if($acc->isAccountingMsg($in))
+			return $acc->account($usr,$in);
 		$lastAQ = "/最后(\d+)条消费记录/";
 		if(preg_match($lastAQ,$stripIn))
 		{
 			$n = intval(preg_replace($lastAQ,"$1",$stripIn));
-			$acc = new Accountor();
 			return $acc->queryN($usr,$n);
 		}
 		if($stripIn == "今天消费记录")
 			return $acc->queryDay($usr,0);
 		if($stripIn == "昨天消费记录")
-			return $acc->queryDay($usr,-1);
+			return $acc->queryDay($usr,1);
 		if($stripIn == "前天消费记录")
-			return $acc->queryDay($usr,-2);
-		$accSum = "/.+月消费总结/";
+			return $acc->queryDay($usr,2);
+		$ndAQ = "/前(\d+)天消费记录/";
+		if(preg_match($ndAQ,$stripIn))
+		{
+			$n = intval(preg_replace($ndAQ,"$1",$stripIn));
+			return $acc->queryDay($usr,$n);
+		}
+		$pdAQ = "/(\d+)月(\d+)日消费记录/";
+		if(preg_match($pdAQ,$stripIn))
+		{
+		    $y = date("Y");
+			try
+			{
+				$n = new DateTime(preg_replace($pdAQ,"{$y}-$1-$2",$stripIn));
+			} catch (Exception $e)
+			{
+				return "日期错了吧?";
+			}
+			$now = new DateTime("now");
+			$diff = intval(($now->getTimestamp() - $n->getTimestamp()) / 60 / 60 / 24);
+			if($diff < 0)
+				return "怎么可能查到……";
+			return $acc->queryDay($usr,$diff);
+		}
+		$accSum = "/(\d+)月消费总结/";
 		
 		// easter egg
 		if(preg_match("/^(喵 *)+$/",$in) or preg_match("/^(汪 *)+$/",$in))
