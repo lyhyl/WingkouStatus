@@ -1,5 +1,6 @@
 <?php
 require_once "baesql.php";
+require_once "bpDeep.php";
 
 class snapGetter
 {

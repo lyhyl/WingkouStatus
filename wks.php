@@ -1,8 +1,10 @@
 <?php
 define("TOKEN", "wingkoulan");
 
+require_once "helper.php";
 require_once "accounting.php";
 require_once "getSnap.php";
+require_once "easterEgg.php";
 
 $wechatObj = new WeChat();
 $wechatObj->responseMsg();
@@ -17,22 +19,44 @@ class WeChat
 		{
 			libxml_disable_entity_loader(true);
 			$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-			$fromUsername = $postObj->FromUserName;
-			$toUsername = $postObj->ToUserName;
-			$keyword = trim($postObj->Content);
-			$time = time();
-			$textTpl = "<xml>
-						<ToUserName><![CDATA[%s]]></ToUserName>
-						<FromUserName><![CDATA[%s]]></FromUserName>
-						<CreateTime>%s</CreateTime>
-						<MsgType><![CDATA[%s]]></MsgType>
-						<Content><![CDATA[%s]]></Content>
-						<FuncFlag>0</FuncFlag>
-						</xml>";
-			$msgType = "text";
-			$contentStr = $this->getResponseTxt($fromUsername,$keyword);
-			$resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
-			echo $resultStr;
+			if($postObj->MsgType == "text")
+			{
+				$fromUsername = $postObj->FromUserName;
+				$keyword = trim($postObj->Content);
+				$contentStr = $this->getResponseTxt($fromUsername,$keyword);
+				$this->responseText($postObj,$contentStr);
+			}
+			else if($postObj->MsgType == "image")
+			{
+				$this->responseText($postObj,"图片啊……或许我应该问问微软小冰怎么跟你斗图……");
+			}
+			else if($postObj->MsgType == "voice")
+			{
+				$this->responseText($postObj,"我……没听清……");
+			}
+			else if($postObj->MsgType == "shortvideo")
+			{
+				$this->responseText($postObj,"老板！换碟！这部我看过了！");
+			}
+			else if($postObj->MsgType == "location")
+			{
+				$this->responseText($postObj,"你在这？");
+			}
+			else if($postObj->MsgType == "link")
+			{
+				$textTpl = "%s？陌生的链接我一般不点……肯定有毒！";
+				$contentStr = sprintf($textTpl,$postObj->Title);
+				$this->responseText($postObj,$contentStr);
+			}
+			else if($postObj->MsgType == "event")
+			{
+				if($postObj->Event == "subscribe")
+					$this->responseText($postObj,"欢迎~\n回复 help 可以查看帮助~");
+			}
+			else
+			{
+				$this->responseText($postObj,$postObj->MsgType);
+			}
         }
 		else
 		{
@@ -40,6 +64,24 @@ class WeChat
         	exit;
         }
     }
+	
+	function responseText($postObj,$contentStr)
+	{
+		$fromUsername = $postObj->FromUserName;
+		$toUsername = $postObj->ToUserName;
+		$msgType = "text";
+		$time = time();
+		$textTpl = "<xml>
+					<ToUserName><![CDATA[%s]]></ToUserName>
+					<FromUserName><![CDATA[%s]]></FromUserName>
+					<CreateTime>%s</CreateTime>
+					<MsgType><![CDATA[%s]]></MsgType>
+					<Content><![CDATA[%s]]></Content>
+					<FuncFlag>0</FuncFlag>
+					</xml>";
+		$resultStr = sprintf($textTpl, $fromUsername, $toUsername, $time, $msgType, $contentStr);
+		echo $resultStr;
+	}
 	
 	function getResponseTxt($usr,$in)
 	{
@@ -50,13 +92,9 @@ class WeChat
 			return "倒是说话啊你……";
 		
 		// help
-		if($in == "help")
-			return "输入 help s 查看状态帮助\n输入 help a 查看记账帮助";
-		if($stripIn == "helps")
-			return "输入\"你在干嘛\"/\"你在干什么\"/\"你在做什么\"/\"waud\"/\"wayd\"/\"wrud\"/\"wryd\"可以查看状态";
-		if($stripIn == "helpa")
-			return "以\$(或¥,￥,＄)开头的消息将作为账目记录\n项目名与金额之间用空格隔开哦~\n例如:\n$\n纸巾 5\n笔 1.99\n\n" . 
-		"输入\"最后n条消费记录\"/\"今天消费记录\"/\"昨天消费记录\"/\"前天消费记录\"可以查询对应记录";
+		$he = new Helper();
+		if($he->isHelpMsg($in))
+			return $he->getHelp($in);
 		
 		// wingkou's status
 		$sg = new snapGetter();
@@ -67,55 +105,20 @@ class WeChat
 		$acc = new Accountor();
 		if($acc->isAccountingMsg($in))
 			return $acc->account($usr,$in);
-		$lastAQ = "/最后(\d+)条消费记录/";
-		if(preg_match($lastAQ,$stripIn))
-		{
-			$n = intval(preg_replace($lastAQ,"$1",$stripIn));
-			return $acc->queryN($usr,$n);
-		}
-		if($stripIn == "今天消费记录")
-			return $acc->queryDay($usr,0);
-		if($stripIn == "昨天消费记录")
-			return $acc->queryDay($usr,1);
-		if($stripIn == "前天消费记录")
-			return $acc->queryDay($usr,2);
-		$ndAQ = "/前(\d+)天消费记录/";
-		if(preg_match($ndAQ,$stripIn))
-		{
-			$n = intval(preg_replace($ndAQ,"$1",$stripIn));
-			return $acc->queryDay($usr,$n);
-		}
-		$pdAQ = "/(\d+)月(\d+)日消费记录/";
-		if(preg_match($pdAQ,$stripIn))
-		{
-		    $y = date("Y");
-			try
-			{
-				$n = new DateTime(preg_replace($pdAQ,"{$y}-$1-$2",$stripIn));
-			} catch (Exception $e)
-			{
-				return "日期错了吧?";
-			}
-			$now = new DateTime("now");
-			$diff = intval(($now->getTimestamp() - $n->getTimestamp()) / 60 / 60 / 24);
-			if($diff < 0)
-				return "怎么可能查到……";
-			return $acc->queryDay($usr,$diff);
-		}
-		$accSum = "/(\d+)月消费总结/";
+		$typeIdx = $acc->getQueryMsgIdx($stripIn);
+		if($typeIdx > 0)
+			return $acc->query($usr,$stripIn,$typeIdx);
 		
 		// easter egg
-		if(preg_match("/^(喵 *)+$/",$in) or preg_match("/^(汪 *)+$/",$in))
-		{
-			$f = array("汪","喵");
-			$t = array("喵","汪");
-			return str_replace($f,$t,$in);
-		}
-		else if(preg_match("/^([喵汪] *)+$/",$in))
-			return "你到底是汪还是喵啊……";
+		$ee = new EasterEgg();
+		if($ee->isEasterEggMsg($in))
+			return $ee->bring($in);
 		
-		// I do not understand
-		return "虽然我不造你说什么，但是我已经记录下来了。另外，输入help可以查看帮助。有建议可直接留言，反正我都不打算改代码……";
+		if($in == "【收到不支持的消息类型，暂无法显示】")
+			return "懒得跟你斗图……";
+		else
+			// I do not understand
+			return "虽然我不造你说什么，但是我已经记录下来了。另外，输入help可以查看帮助。有建议可直接留言。";
 	}
 }
 ?>

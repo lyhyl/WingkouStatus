@@ -5,10 +5,34 @@ class Accountor
 {
 	private $tbname = "Accounting";
 	private $x = array("$","¥","￥","＄");
+	private $lastAQ = "/最后(\d+)条消费记录/";
+	private $ndAQ = "/前(\d+)天消费记录/";
+	private $pdAQ = "/(\d+)月(\d+)日消费记录/";
+	private $pmAQ = "/(\d+)月消费总结/";
+	private $d0AQ = "今天消费记录";
+	private $d1AQ = "昨天消费记录";
+	private $d2AQ = "前天消费记录";
 	
 	function isAccountingMsg($in)
 	{
 		return preg_match("/^[\$¥￥＄]/",$in);
+	}
+	
+	function getQueryMsgIdx($stripIn)
+	{
+		if(preg_match($this->lastAQ,$stripIn))
+			return 1;
+		if($stripIn == $this->d0AQ)
+			return 2;
+		if($stripIn == $this->d1AQ)
+			return 3;
+		if($stripIn == $this->d2AQ)
+			return 4;
+		if(preg_match($this->ndAQ,$stripIn))
+			return 5;
+		if(preg_match($this->pdAQ,$stripIn))
+			return 6;
+		return -1;
 	}
 	
 	function account($usr,$in)
@@ -29,6 +53,40 @@ class Accountor
 		if(empty($rec))
 			$rec = "(无……)";
 		return "已记录~ XD:" . $rec;
+	}
+	
+	function query($usr,$stripIn,$type)
+	{
+		switch($type)
+		{
+			case 1:
+				$n = intval(preg_replace($this->lastAQ,"$1",$stripIn));
+				return $this->queryN($usr,$n);
+			case 2:
+				return $this->queryDay($usr,0);
+			case 3:
+				return $this->queryDay($usr,1);
+			case 4:
+				return $this->queryDay($usr,2);
+			case 5:
+				$n = intval(preg_replace($this->ndAQ,"$1",$stripIn));
+				return $this->queryDay($usr,$n);
+			case 6:
+				$y = date("Y");
+				try {
+					$n = new DateTime(preg_replace($this->pdAQ,"{$y}-$1-$2",$stripIn));
+				} catch (Exception $e) {
+					return "日期错了吧?";
+				}
+				$now = new DateTime("now");
+				$diff = intval(($now->getTimestamp() - $n->getTimestamp()) / 60 / 60 / 24);
+				if($diff < 0)
+					return "怎么可能查到……";
+				else
+					return $this->queryDay($usr,$diff);
+			default:
+				return "error!acc.query({$type})";
+		}
 	}
 	
 	function queryN($usr,$n)
